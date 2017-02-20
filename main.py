@@ -1,6 +1,7 @@
 from graph_provider import *
 import networkx as nx
 
+
 def main():
     G = google_web_graph() # / pref_attachment_graph()
     print("Number of edges:", nx.number_of_edges(G))

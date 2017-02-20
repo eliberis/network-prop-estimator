@@ -6,6 +6,7 @@ PREF_ATTACHMENT_GRAPH_FILE = "pref_attachment.p"
 GOOGLE_GRAPH_FILE = "web-Google.txt"
 GOOGLE_GRAPH_POSTPROCESSED_FILE = "web_google_maxwcc.p"
 
+
 def generate_pref_attachment_graph(n, r, p, seed=None):
     if seed is not None:
         random.seed(seed)
@@ -16,7 +17,6 @@ def generate_pref_attachment_graph(n, r, p, seed=None):
     # The array is maintained manually for speed. Preferential sampling is
     # therefore just a regular `choice` from this array.
     repeated_nodes = [i for i in range(r) for d in range(G.degree(i))]
-    print(repeated_nodes)
 
     for v in range(r, n):
         if v % 1000 == 0:
@@ -42,6 +42,7 @@ def generate_pref_attachment_graph(n, r, p, seed=None):
 
     return G
 
+
 def pref_attachment_graph():
     if os.path.isfile(PREF_ATTACHMENT_GRAPH_FILE):
         return nx.read_gpickle(PREF_ATTACHMENT_GRAPH_FILE)
@@ -49,6 +50,7 @@ def pref_attachment_graph():
         G = generate_pref_attachment_graph(600000, 3, 0.6)
         nx.write_gpickle(G, PREF_ATTACHMENT_GRAPH_FILE)
         return G
+
 
 def google_web_graph():
     if os.path.isfile(GOOGLE_GRAPH_POSTPROCESSED_FILE):
