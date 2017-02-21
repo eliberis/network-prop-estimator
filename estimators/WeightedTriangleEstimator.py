@@ -1,7 +1,7 @@
 from estimators.AbstractEstimator import AbstractEstimator
 
 
-class TriangleEstimator(AbstractEstimator):
+class WeightedTriangleEstimator(AbstractEstimator):
     def __init__(self, *args, num_edges, **kwargs):
         self.num_edges = num_edges
         super().__init__(*args, **kwargs)

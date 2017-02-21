@@ -1,7 +1,7 @@
 from estimators.AbstractEstimator import AbstractEstimator
 
 
-class EdgeEstimator(AbstractEstimator):
+class WeightedEdgeEstimator(AbstractEstimator):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

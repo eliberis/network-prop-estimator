@@ -1,7 +1,7 @@
 from estimators.AbstractEstimator import AbstractEstimator
 
 
-class NodeEstimator(AbstractEstimator):
+class WeightedNodeEstimator(AbstractEstimator):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Optimisation, avoids calling `degree` all the time.
