@@ -10,6 +10,7 @@ class AbstractEstimator(object):
         self.degrees = {i: self.G.degree(i) for i in self.G.nodes_iter()}
 
     def _edge_weight_func(self, u, v):
+        # Simple random walk
         return 1 / self.degrees[u]
 
     def _node_weight_func(self, u):
