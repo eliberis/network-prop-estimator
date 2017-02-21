@@ -1,3 +1,4 @@
-from estimators.NodeEstimator import *
-from estimators.EdgeEstimator import *
-from estimators.TriangleEstimator import *
+from estimators.WeightedEdgeEstimator import *
+from estimators.WeightedEdgeEstimator import *
+from estimators.WeightedTriangleEstimator import *
+from estimators.FormulaNodeEstimator import *

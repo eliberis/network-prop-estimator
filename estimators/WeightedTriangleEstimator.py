@@ -14,6 +14,6 @@ class WeightedTriangleEstimator(AbstractEstimator):
     def _edge_weight_func(self, u, v):
         return 1 + self.triangles(u, v)
 
-    def _compute_metric(self, node, k, t):
+    def _compute_metric(self, node, k, t, accum):
         return max(0, t * self._node_weight_func(node) / (6 * k) -
                       self.num_edges / 3)

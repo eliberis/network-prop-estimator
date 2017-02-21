@@ -1,15 +1,15 @@
 from estimators.AbstractEstimator import AbstractEstimator
 
 
-class WeightedEdgeEstimator(AbstractEstimator):
+class FormulaNodeEstimator(AbstractEstimator):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def _edge_weight_func(self, u, v):
-        return 1
-
     def _node_weight_func(self, u):
-        return self.G.degree(u)
+        return self.degrees[u]
+
+    def _accum_func(self, u):
+        return 1 / self.degrees[u]
 
     def _compute_metric(self, node, k, t, accum):
-        return t * self._node_weight_func(node) / (2 * k)
+        return accum / k * self._node_weight_func(node)
