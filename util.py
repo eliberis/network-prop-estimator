@@ -1,7 +1,7 @@
 from random import random
 from itertools import accumulate
 from bisect import bisect
-
+import scipy as sp
 
 def random_choice(population, weights):
     accum_weights = list(accumulate(weights))
@@ -20,3 +20,9 @@ def edge_triangles(G, u, v):
 
 def node_triangles(G, u):
     return sum(map(lambda v: edge_triangles(G, u, v), G.neighbors_iter(u)))
+
+
+def eigenvalue_gap(est):
+    A = est.transition_matrix()
+    eigenvalues = sorted(sp.sparse.linalg.eigs(A)[0])
+    return 1 - eigenvalues[-2].real

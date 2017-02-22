@@ -1,6 +1,6 @@
 import util
 from random_walker import RandomWalker
-
+import networkx as nx
 
 class AbstractEstimator(object):
     def __init__(self, G):
@@ -20,6 +20,16 @@ class AbstractEstimator(object):
 
     def _accum_func(self, u):
         return 0
+
+    def transition_prob(self, u, v):
+        return self._edge_weight_func(u, v) / self._node_weight_func(u)
+
+    def transition_matrix(self):
+        # At this point it matters that a graph is directed
+        G = nx.DiGraph(self.G)
+        for u, v, d in G.edges_iter(data=True):
+            d['weight'] = self.transition_prob(u, v)
+        return nx.adjacency_matrix(G)
 
     def estimates(self, num_estimates, start_node=None):
         rw = RandomWalker(self.G,
