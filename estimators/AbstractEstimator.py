@@ -10,12 +10,10 @@ class AbstractEstimator(object):
         self.degrees = {i: self.G.degree(i) for i in self.G.nodes_iter()}
 
     def _edge_weight_func(self, u, v):
-        # Simple random walk
-        return 1 / self.degrees[u]
+        return 1
 
     def _node_weight_func(self, u):
-        return sum(map(lambda v: self._edge_weight_func(u, v),
-                       self.G.neighbors_iter(u)))
+        return self.degrees[u]
 
     def _compute_metric(self, node, k, t, accum):
         raise NotImplementedError()
