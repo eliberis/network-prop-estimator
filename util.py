@@ -3,6 +3,7 @@ from itertools import accumulate
 from bisect import bisect
 import scipy as sp
 
+
 def random_choice(population, weights):
     accum_weights = list(accumulate(weights))
     return population[bisect(accum_weights, random() * accum_weights[-1])]
@@ -19,7 +20,8 @@ def edge_triangles(G, u, v):
 
 
 def node_triangles(G, u):
-    return sum(map(lambda v: edge_triangles(G, u, v), G.neighbors_iter(u)))
+    # Counted u-B-C and u-C-B twice, so divide by 2
+    return sum(map(lambda v: edge_triangles(G, u, v), G.neighbors_iter(u))) // 2
 
 
 def eigenvalue_gap(est):

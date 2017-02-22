@@ -11,4 +11,4 @@ class FormulaTriangleEstimator(AbstractEstimator):
         return node_triangles(self.G, u) / self.degrees[u]
 
     def _compute_metric(self, node, k, t, accum):
-        return accum / (2 * 3 * k) * self._node_weight_func(node)
+        return accum / (3 * k) * self._node_weight_func(node)
