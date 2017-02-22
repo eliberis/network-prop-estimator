@@ -31,14 +31,16 @@ class AbstractEstimator(object):
             d['weight'] = self.transition_prob(u, v)
         return nx.adjacency_matrix(G)
 
+    def compute_start_node(self):
+        return util.pick_highest_weight_node(self.G, self._node_weight_func)
+
     def estimates(self, num_estimates, start_node=None):
         rw = RandomWalker(self.G,
                           self._edge_weight_func,
                           self._accum_func)
 
         if start_node is None:
-            start_node = \
-                util.pick_highest_weight_node(self.G, self._node_weight_func)
+            start_node = self.compute_start_node()
 
         # Damn, Python 3
         return map(lambda r: self._compute_metric(start_node, r[0], r[1], r[2]),
