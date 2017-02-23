@@ -1,35 +1,67 @@
 import numpy as np
+import networkx as nx
 from matplotlib.ticker import ScalarFormatter, FuncFormatter
 import matplotlib.pyplot as plt
+from math import log, ceil
 import os.path
+import pickle
 
 def produce_plot(G, est_class, true_val,
                  num_estimators=10, num_estimates=12000,
                  est_quant_name='Estimated quantity',
                  *est_args, **est_kwargs):
 
-    result_file_name = "{0}_{1}x{2}.npy".format(est_class.__name__,
-                                                num_estimators, num_estimates)
+    result_file_name = "{0}_{1}x{2}.p".format(est_class.__name__,
+                                              num_estimators, num_estimates)
 
     est = est_class(G, *est_args, **est_kwargs)
-    start_node = est.compute_start_node()  # Reuse start_node for efficiency
-    bound_func = est.bound_on_deviation(start_node)
-    max_T = 7979
-    zvv_dev_func = est.zvv_deviation(num_estimates, max_T, start_node)
 
     if os.path.exists(result_file_name):
-        results = np.load(result_file_name)
+        with open(result_file_name, "rb") as f:
+            to_load = pickle.load(f)
+        results = to_load["results"]
+        start_node = to_load["start_node"]
+        tvar_bound = to_load["tvar_bound"]
+        tvar_estim = to_load["tvar_estim"]
     else:
+        start_node = est.compute_start_node()  # Reuse start_node for efficiency
         results = np.zeros((num_estimators, num_estimates), dtype=np.float32)
+        returns = np.zeros((num_estimators, num_estimates), dtype=np.uint64)
 
         for i in range(num_estimators):
             est = est_class(G, *est_args, **est_kwargs)
             estims = est.estimates(num_estimates, start_node=start_node)
             print("Walking {0} out of {1}...".format(i + 1, num_estimators))
-            for j, val in enumerate(estims):
+            for j, val, t in estims:
                 results[i, j] = val
+                returns[i, j] = t
 
-        np.save(result_file_name, results)
+        print("Estimating bounds...")
+        t = 3500  # TODO Uhm...
+        select_fn = np.vectorize(lambda x: x <= t, otypes=[np.bool])
+        y_t = np.sum(select_fn(returns)) / returns.size
+
+        print("t and y_t", t, y_t)
+
+        stat_distr = est.stat_distr(start_node)
+        print("stat_distr", stat_distr)
+
+        tvar_bound = est.tvar_zvv_bound(stat_distr)
+        tvar_estim = est.tvar_zvv_estimate(t, y_t, stat_distr)
+
+        to_save = {"results": results,
+                   "return_times": returns,
+                   "start_node": start_node,
+                   "tvar_bound": tvar_bound,
+                   "tvar_estim": tvar_estim}
+
+        with open(result_file_name, "wb") as f:
+            pickle.dump(to_save, f)
+
+    print(tvar_bound, tvar_estim, start_node)
+
+    bound_func = est.deviations(tvar_bound, start_node)
+    dev_est_func = est.deviations(tvar_estim, start_node)
 
     figure_name = est_class.__name__ + ".png"
 
@@ -58,7 +90,7 @@ def produce_plot(G, est_class, true_val,
 
     # Plot estimated Zvv deviation
     l_purple = '#e899ff'
-    y_dev_bound = np.array([bound_func(k) for k in x])
+    y_dev_bound = np.array([dev_est_func(k) for k in x])
     ax.semilogx(x, true_val + y_dev_bound, color=l_purple, linestyle='dashed')
     ax.semilogx(x, true_val - y_dev_bound, color=l_purple, linestyle='dashed')
 
