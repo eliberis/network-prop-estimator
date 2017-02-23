@@ -10,3 +10,6 @@ class FormulaNodeEstimator(AbstractEstimator):
 
     def _compute_metric(self, node, k, t, accum):
         return accum / k * self._node_weight_func(node)
+
+    def _compute_metric_stddev(self, node, k, t_var):
+        raise NotImplementedError() # TODO

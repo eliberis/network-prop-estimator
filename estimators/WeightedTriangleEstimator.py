@@ -1,6 +1,8 @@
 from estimators.AbstractEstimator import AbstractEstimator
 from util import edge_triangles, node_triangles
 from functools import lru_cache
+from math import sqrt
+
 
 class WeightedTriangleEstimator(AbstractEstimator):
     def __init__(self, *args, num_edges, **kwargs):
@@ -18,3 +20,7 @@ class WeightedTriangleEstimator(AbstractEstimator):
     def _compute_metric(self, node, k, t, accum):
         return max(0, t * self._node_weight_func(node) / (6 * k) -
                       self.num_edges / 3)
+
+    def _compute_metric_stddev(self, node, k, t_var):
+        # Ignore the 0 case of `max`
+        return (self._node_weight_func(node) / 6) * sqrt(t_var / k)
