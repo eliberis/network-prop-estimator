@@ -9,6 +9,7 @@ import pickle
 def produce_plot(G, est_class, true_val,
                  num_estimators=10, num_estimates=12000,
                  est_quant_name='Estimated quantity',
+                 mixing_time = 570,
                  *est_args, **est_kwargs):
 
     result_file_name = "{0}_{1}x{2}.p".format(est_class.__name__,
@@ -37,15 +38,11 @@ def produce_plot(G, est_class, true_val,
                 returns[i, j] = t
 
         print("Estimating bounds...")
-        t = 3500  # TODO Uhm...
+        t = mixing_time * log(nx.number_of_nodes(G))
         select_fn = np.vectorize(lambda x: x <= t, otypes=[np.bool])
         y_t = np.sum(select_fn(returns)) / returns.size
 
-        print("t and y_t", t, y_t)
-
         stat_distr = est.stat_distr(start_node)
-        print("stat_distr", stat_distr)
-
         tvar_bound = est.tvar_zvv_bound(stat_distr)
         tvar_estim = est.tvar_zvv_estimate(t, y_t, stat_distr)
 
@@ -57,8 +54,6 @@ def produce_plot(G, est_class, true_val,
 
         with open(result_file_name, "wb") as f:
             pickle.dump(to_save, f)
-
-    print(tvar_bound, tvar_estim, start_node)
 
     bound_func = est.deviations(tvar_bound, start_node)
     dev_est_func = est.deviations(tvar_estim, start_node)

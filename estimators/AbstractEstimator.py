@@ -75,7 +75,6 @@ class AbstractEstimator(object):
 
     def tvar_zvv_estimate(self, t, y_t, stat_distr):
         Zvv = -t * stat_distr / log(1 - y_t)
-        print("Zvv", Zvv)
         return self._compute_return_time_variance(Zvv, stat_distr)
 
     def deviations(self, t_var, start_node):

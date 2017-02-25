@@ -14,4 +14,4 @@ class FormulaTriangleEstimator(AbstractEstimator):
         return accum / (3 * k) * self._node_weight_func(node)
 
     def _compute_metric_stddev(self, node, k, t_var):
-        raise NotImplementedError() # TODO
+        return float('inf')  # Not supported
