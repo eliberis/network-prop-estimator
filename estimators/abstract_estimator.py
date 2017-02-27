@@ -1,14 +1,17 @@
-import util
-from random_walker import RandomWalker
 import networkx as nx
 import scipy as sp
 from math import log
+import util
+from random_walker import RandomWalker
+
 
 class AbstractEstimator(object):
-    def __init__(self, G):
+    def __init__(self, G,  edge_weight_cache=None, node_weight_cache=None):
         self.G = G
         # Optimisation, avoids calling `degree` all the time.
-        # The graph doesn't change anyway, so it's OK to cache degrees.
+        # The graph doesn't change anyway, so it's OK to cache.
+        self.ew_cache = edge_weight_cache
+        self.nw_cache = node_weight_cache
         self.degrees = {i: self.G.degree(i) for i in self.G.nodes_iter()}
 
     def _edge_weight_func(self, u, v):
@@ -16,6 +19,13 @@ class AbstractEstimator(object):
 
     def _node_weight_func(self, u):
         return self.degrees[u]
+
+    def _cached_edge_weight(self, u, v):
+        return self.ew_cache[(u, v)] \
+            if self.ew_cache else self._edge_weight_func(u, v)
+
+    def _cached_node_weight(self, u):
+        return self.nw_cache[u] if self.nw_cache else self._node_weight_func(u)
 
     def _compute_metric(self, node, k, t, accum):
         raise NotImplementedError()
@@ -33,8 +43,21 @@ class AbstractEstimator(object):
     def _accum_func(self, u):
         return 0
 
+    def compute_weight_caches(self):
+        ew_cache = {}
+        for u, v in self.G.edges_iter():
+            val = self._edge_weight_func(u, v)
+            ew_cache[(u, v)] = val
+            ew_cache[(v, u)] = val
+
+        nw_cache = {}
+        for u in self.G.nodes_iter():
+            nw_cache[u] = self._node_weight_func(u)
+
+        return ew_cache, nw_cache
+
     def transition_prob(self, u, v):
-        return self._edge_weight_func(u, v) / self._node_weight_func(u)
+        return self._cached_edge_weight(u, v) / self._cached_node_weight(v)
 
     def transition_matrix(self):
         # At this point it matters that a graph is directed
@@ -44,7 +67,7 @@ class AbstractEstimator(object):
         return nx.adjacency_matrix(G)
 
     def compute_start_node(self):
-        return util.pick_highest_weight_node(self.G, self._node_weight_func)
+        return util.pick_highest_weight_node(self.G, self._cached_node_weight)
 
     def estimates(self, num_estimates, start_node=None):
         rw = RandomWalker(self.G,
@@ -61,8 +84,8 @@ class AbstractEstimator(object):
             prev_t = t
 
     def stat_distr(self, node):
-        w_G = sum(self._node_weight_func(i) for i in self.G.nodes_iter())
-        return self._node_weight_func(node) / w_G
+        w_G = sum(self._cached_node_weight(i) for i in self.G.nodes_iter())
+        return self._cached_node_weight(node) / w_G
 
     def _compute_return_time_variance(self, Zvv, stat_distr):
         return (2 * Zvv + stat_distr - 1) / (stat_distr ** 2)

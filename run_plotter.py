@@ -6,6 +6,7 @@ from math import log, ceil
 import os.path
 import pickle
 
+
 def produce_plot(G, est_class, true_val,
                  num_estimators=10, num_estimates=12000,
                  est_quant_name='Estimated quantity',
@@ -16,6 +17,7 @@ def produce_plot(G, est_class, true_val,
                                               num_estimators, num_estimates)
 
     est = est_class(G, *est_args, **est_kwargs)
+    ew_cache, nw_cache = est.compute_weight_caches()
 
     if os.path.exists(result_file_name):
         with open(result_file_name, "rb") as f:
@@ -30,7 +32,10 @@ def produce_plot(G, est_class, true_val,
         returns = np.zeros((num_estimators, num_estimates), dtype=np.uint64)
 
         for i in range(num_estimators):
-            est = est_class(G, *est_args, **est_kwargs)
+            est = est_class(G,
+                            node_weight_cache=nw_cache,
+                            edge_weight_cache=ew_cache,
+                            *est_args, **est_kwargs)
             estims = est.estimates(num_estimates, start_node=start_node)
             print("Walking {0} out of {1}...".format(i + 1, num_estimators))
             for j, val, t in estims:

@@ -1,4 +1,4 @@
-from estimators.AbstractEstimator import AbstractEstimator
+from estimators.abstract_estimator import AbstractEstimator
 from util import node_triangles
 from functools import lru_cache
 

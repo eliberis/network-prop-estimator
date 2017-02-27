@@ -1,4 +1,4 @@
-from estimators.AbstractEstimator import AbstractEstimator
+from estimators.abstract_estimator import AbstractEstimator
 
 
 class FormulaNodeEstimator(AbstractEstimator):
