@@ -12,13 +12,28 @@ def produce_plot(G, est_class, true_val,
                  est_quant_name='Estimated quantity',
                  mixing_time=570,
                  *est_args, **est_kwargs):
+    """
+    Plot estimates of a property as a function of returns.
+    :param G: The graph
+    :param est_class: Estimator class for a property
+    :param true_val: Known true value of the property
+    :param num_estimators: Number of walks to run
+    :param num_estimates: Number of estimates for each walker to produce
+    :param est_quant_name: The name of the estimated quantity (axis title)
+    :param mixing_time: Mixing time for the walk
+    :param est_args: Additional arguments for an estimator
+    :param est_kwargs: Additional arguments for an estimator
+    :return:
+    """
 
     result_file_name = "{0}_{1}x{2}.p".format(est_class.__name__,
                                               num_estimators, num_estimates)
 
     est = est_class(G, *est_args, **est_kwargs)
+    # All `num_estimators` estimators share this cache.
     ew_cache, nw_cache = est.compute_weight_caches()
 
+    # Walk results are pickled for quick access next time
     if os.path.exists(result_file_name):
         with open(result_file_name, "rb") as f:
             to_load = pickle.load(f)
@@ -66,14 +81,18 @@ def produce_plot(G, est_class, true_val,
     figure_name = est_class.__name__ + ".png"
 
     x = np.arange(1, num_estimates+1)
+
+    # Compute mean and std-dev across all walkers
     y_mean = np.mean(results, axis=0)
     y_std = np.std(results, axis=0)
 
+    # Plot estimates
     fig, ax = plt.subplots(figsize=(7, 4), dpi=300)
     for i in range(num_estimators):
         ax.semilogx(x, results[i, :], '.',
                     color='grey', alpha=0.1, markersize=1)
 
+    # Plot ground truth
     ax.axhline(y=true_val, color='r', linestyle='-')
 
     # Plot experiments' average and deviation
@@ -98,8 +117,8 @@ def produce_plot(G, est_class, true_val,
     ax.xaxis.set_major_formatter(ScalarFormatter())
     ax.yaxis.set_major_formatter(
         FuncFormatter(lambda x, pos: '%1.1fM' % (x*1e-6)))
-
     plt.axis([1, num_estimates, true_val-0.5*y_std[0], true_val+0.5*y_std[0]])
     plt.xlabel('k = Number of returns')
     plt.ylabel(est_quant_name)
+
     fig.savefig(figure_name)
