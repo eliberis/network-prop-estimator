@@ -54,6 +54,8 @@ class AbstractEstimator(object):
         for u in self.G.nodes_iter():
             nw_cache[u] = self._node_weight_func(u)
 
+        self.ew_cache = ew_cache
+        self.nw_cache = nw_cache
         return ew_cache, nw_cache
 
     def transition_prob(self, u, v):
