@@ -2,7 +2,7 @@ import numpy as np
 import networkx as nx
 from matplotlib.ticker import ScalarFormatter, FuncFormatter
 import matplotlib.pyplot as plt
-from math import log, ceil
+from math import log
 import os.path
 import pickle
 
@@ -10,7 +10,7 @@ import pickle
 def produce_plot(G, est_class, true_val,
                  num_estimators=10, num_estimates=12000,
                  est_quant_name='Estimated quantity',
-                 mixing_time = 570,
+                 mixing_time=570,
                  *est_args, **est_kwargs):
 
     result_file_name = "{0}_{1}x{2}.p".format(est_class.__name__,
