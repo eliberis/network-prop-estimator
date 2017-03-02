@@ -5,6 +5,7 @@ import os.path
 PREF_ATTACHMENT_GRAPH_FILE = "pref_attachment.p"
 GOOGLE_GRAPH_FILE = "web-Google.txt"
 GOOGLE_GRAPH_POSTPROCESSED_FILE = "web_google_maxwcc.p"
+AMAZON_GRAPH_FILE = "amazon0312.txt"
 
 
 def generate_pref_attachment_graph(n, r, p, seed=None):
@@ -60,3 +61,7 @@ def google_web_graph():
         Gc = max(nx.connected_component_subgraphs(G), key=len)
         nx.write_gpickle(Gc, GOOGLE_GRAPH_POSTPROCESSED_FILE)
         return Gc
+
+
+def amazon_graph():
+    return nx.read_edgelist(AMAZON_GRAPH_FILE, delimiter="\t")
